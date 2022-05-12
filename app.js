@@ -4,7 +4,7 @@ const app = express();
 
 
 app.use("/graphql", graphqlHTTP({
-    //enables grapql GUI
+    //enables grapql GUI 
     graphiql: true,
 }))
 

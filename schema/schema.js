@@ -23,7 +23,15 @@ var hobbies = [
 
 ]
 
-const userType = new GraphQLObjectType({
+var posts = [
+    { id: '1', comment: 'Coding',userId: '1' },
+    { id: '2', comment: 'Reading',userId: '2' },
+    { id: '3', comment: 'Sleeping',userId: '3' },
+    { id: '4', comment: 'Eating',userId: '1' },
+
+]
+
+const UserType = new GraphQLObjectType({
 	name: 'User',
 	description: 'This represents a user',
 	fields: () => ({
@@ -44,12 +52,27 @@ const HobbyType = new GraphQLObjectType({
 	}),
 });
 
+const PostType = new GraphQLObjectType({
+	name: 'Post',
+	description: 'This represents a Post',
+	fields: () => ({
+		id: { type: GraphQLID },
+		comment: { type: GraphQLString },
+        user:{ type: UserType, 
+            resolve(parent,args){
+                return _.find(users,{id:parent.userId})
+
+            } },
+	}),
+});
+
+
 const RootQuery = new GraphQLObjectType({
 	name: 'RootQueryType',
 	description: 'Root Query',
 	fields: {
 		user: {
-			type: userType,
+			type: UserType,
 			args: { id: { type: GraphQLID } },
 			resolve(parents, args) {
 				//we resolve with daya
@@ -64,6 +87,16 @@ const RootQuery = new GraphQLObjectType({
 				//we resolve with daya
 				// get and return data with source
 				return _.find(hobbies, { id: args.id });
+			},
+
+        },
+        post:{
+            type:PostType,
+            args: { id: { type: GraphQLID } },
+            resolve(parents, args) {
+				//we resolve with daya
+				// get and return data with source
+				return _.find(posts, { id: args.id });
 			},
 
         }

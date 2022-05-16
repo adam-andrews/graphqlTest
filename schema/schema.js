@@ -2,6 +2,7 @@ const graphql = require('graphql');
 var _ = require('lodash');
 const {
 	GraphQLObjectType,
+    GraphQLList,
 	GraphQLID,
 	GraphQLString,
 	GraphQLInt,
@@ -16,20 +17,18 @@ var users = [
 ];
 
 var hobbies = [
-    { id: '1', title: 'Coding', description: '1' },
-    { id: '2', title: 'Reading', description: '1' },
-    { id: '3', title: 'Sleeping', description: '2' },
-    { id: '4', title: 'Eating', description: '2' },
-
-]
+	{ id: '1', title: 'Coding', description: '1', userId: '1' },
+	{ id: '2', title: 'Reading', description: '1', userId: '1' },
+	{ id: '3', title: 'Sleeping', description: '2', userId: '3' },
+	{ id: '4', title: 'Eating', description: '2', userId: '2' },
+];
 
 var posts = [
-    { id: '1', comment: 'Coding',userId: '1' },
-    { id: '2', comment: 'Reading',userId: '2' },
-    { id: '3', comment: 'Sleeping',userId: '3' },
-    { id: '4', comment: 'Eating',userId: '1' },
-
-]
+	{ id: '1', comment: 'Coding', userId: '1' },
+	{ id: '2', comment: 'Reading', userId: '2' },
+	{ id: '3', comment: 'Sleeping', userId: '3' },
+	{ id: '4', comment: 'Eating', userId: '1' },
+];
 
 const UserType = new GraphQLObjectType({
 	name: 'User',
@@ -39,6 +38,18 @@ const UserType = new GraphQLObjectType({
 		name: { type: GraphQLString },
 		age: { type: GraphQLInt },
 		profession: { type: GraphQLString },
+        posts : {
+            type : new GraphQLList(PostType),
+            resolve(parent, args){
+                return _.filter(posts, {userId: parent.id}); 
+            }
+        },
+        hobbies : {
+            type : new GraphQLList(HobbyType),
+            resolve(parent, args){
+                return _.filter(hobbies, {userId: parent.id}); 
+            }
+        }
 	}),
 });
 
@@ -49,6 +60,12 @@ const HobbyType = new GraphQLObjectType({
 		id: { type: GraphQLID },
 		title: { type: GraphQLString },
 		description: { type: GraphQLString },
+		user: {
+			type: UserType,
+			resolve(parent, args) {
+				return _.find(users, { id: parent.userId });
+			},
+		},
 	}),
 });
 
@@ -58,14 +75,14 @@ const PostType = new GraphQLObjectType({
 	fields: () => ({
 		id: { type: GraphQLID },
 		comment: { type: GraphQLString },
-        user:{ type: UserType, 
-            resolve(parent,args){
-                return _.find(users,{id:parent.userId})
-
-            } },
+		user: {
+			type: UserType,
+			resolve(parent, args) {
+				return _.find(users, { id: parent.userId });
+			},
+		},
 	}),
 });
-
 
 const RootQuery = new GraphQLObjectType({
 	name: 'RootQueryType',
@@ -80,29 +97,69 @@ const RootQuery = new GraphQLObjectType({
 				return _.find(users, { id: args.id });
 			},
 		},
-        hobby:{
-            type:HobbyType,
-            args: { id: { type: GraphQLID } },
-            resolve(parents, args) {
+		hobby: {
+			type: HobbyType,
+			args: { id: { type: GraphQLID } },
+			resolve(parents, args) {
 				//we resolve with daya
 				// get and return data with source
 				return _.find(hobbies, { id: args.id });
 			},
-
-        },
-        post:{
-            type:PostType,
-            args: { id: { type: GraphQLID } },
-            resolve(parents, args) {
+		},
+		post: {
+			type: PostType,
+			args: { id: { type: GraphQLID } },
+			resolve(parents, args) {
 				//we resolve with daya
 				// get and return data with source
 				return _.find(posts, { id: args.id });
 			},
-
-        }
+		},
 	},
 });
 
+//Mutations
+
+const Mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        addUser: {
+            type: UserType,
+            args: {
+                id: { type: GraphQLID },
+                name: { type: GraphQLString },
+                age: { type: GraphQLInt },
+                profession: { type: GraphQLString },
+            },
+            resolve(parent, args) {
+                let user = {
+                    id: args.id,
+                    name: args.name,
+                    age: args.age,
+                    profession: args.profession,
+                }
+                return user;
+            }
+        },
+        addPost:{
+            type: PostType,
+            args: {
+                id: { type: GraphQLID },
+                comment: { type: GraphQLString },
+                userId: { type: GraphQLID },
+            },
+            resolve(parent, args) {
+                let post = {
+                    id: args.id,
+                    comment: args.comment,
+                    userId: args.userId,
+                }
+                return post;
+            }
+        }
+    }
+})
 module.exports = new GraphQLSchema({
 	query: RootQuery,
+    mutation: Mutation,
 });

@@ -15,8 +15,6 @@ mongoose
 	.then(() => {
 		app.listen({ port: port }, () => {
 			console.log('connected to mongo');
-			console.log(process.env.MONGO_URL);
-			console.log(process.env.PORT);
 		});
 	 })
 	.catch((err) => console.log(err));
@@ -25,7 +23,7 @@ app.use(
 	graphqlHTTP({
 		//enables grapql GUI
 		graphiql: true,
-		schema: testSchema,
+		schema: schema,
 	})
 );
 

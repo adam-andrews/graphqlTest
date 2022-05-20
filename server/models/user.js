@@ -1,9 +1,8 @@
 const mongoose = require('mongoose');
 const MSchema = mongoose.Schema;
-mongoose.set('useFindAndModify', false);
 
 
-const userSchema = new MSchema({
+const userSchema = MSchema({
     name:String,
     age:Number,
     profession:String,

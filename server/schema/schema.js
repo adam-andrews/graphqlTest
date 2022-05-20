@@ -10,25 +10,30 @@ const {
 } = graphql;
 // Create Types
 
-var users = [
-	{ id: '1', name: 'John Doe', age: 30, profession: 'Web Developer' },
-	{ id: '2', name: 'Jane Doe', age: 25, profession: 'Web Designer' },
-	{ id: '3', name: 'Jack Doe', age: 20, profession: 'Web Designer' },
-];
+const User = require('../models/user');
+const Post = require('../models/post');
+const Hobby = require('../models/hobby');
 
-var hobbies = [
-	{ id: '1', title: 'Coding', description: '1', userId: '1' },
-	{ id: '2', title: 'Reading', description: '1', userId: '1' },
-	{ id: '3', title: 'Sleeping', description: '2', userId: '3' },
-	{ id: '4', title: 'Eating', description: '2', userId: '2' },
-];
 
-var posts = [
-	{ id: '1', comment: 'Coding', userId: '1' },
-	{ id: '2', comment: 'Reading', userId: '2' },
-	{ id: '3', comment: 'Sleeping', userId: '3' },
-	{ id: '4', comment: 'Eating', userId: '1' },
-];
+// var users = [
+// 	{ id: '1', name: 'John Doe', age: 30, profession: 'Web Developer' },
+// 	{ id: '2', name: 'Jane Doe', age: 25, profession: 'Web Designer' },
+// 	{ id: '3', name: 'Jack Doe', age: 20, profession: 'Web Designer' },
+// ];
+
+// var hobbies = [
+// 	{ id: '1', title: 'Coding', description: '1', userId: '1' },
+// 	{ id: '2', title: 'Reading', description: '1', userId: '1' },
+// 	{ id: '3', title: 'Sleeping', description: '2', userId: '3' },
+// 	{ id: '4', title: 'Eating', description: '2', userId: '2' },
+// ];
+
+// var posts = [
+// 	{ id: '1', comment: 'Coding', userId: '1' },
+// 	{ id: '2', comment: 'Reading', userId: '2' },
+// 	{ id: '3', comment: 'Sleeping', userId: '3' },
+// 	{ id: '4', comment: 'Eating', userId: '1' },
+// ];
 
 const UserType = new GraphQLObjectType({
 	name: 'User',
@@ -151,13 +156,13 @@ const Mutation = new GraphQLObjectType({
                 profession: { type: GraphQLString },
             },
             resolve(parent, args) {
-                let user = {
+                let user = User({
                     id: args.id,
                     name: args.name,
                     age: args.age,
                     profession: args.profession,
-                }
-                return user;
+                });
+                return user.save();
             }
         },
         addHobby: {
@@ -169,13 +174,13 @@ const Mutation = new GraphQLObjectType({
                 userId: { type: GraphQLID },
             },
             resolve(parent, args) {
-                let hobby = {
+                let hobby = Hobby({
                     //id: args.id,
                     title: args.title,
                     description: args.description,
                     userId: args.userId,
-                }
-                return hobby;
+                })
+                return hobby.save();
             }
         },
 
@@ -184,15 +189,15 @@ const Mutation = new GraphQLObjectType({
             args: {
                 id: { type: GraphQLID },
                 comment: { type: GraphQLString },
-                userId: { type: GraphQLID },
+                userId: { type: GraphQLString },
             },
             resolve(parent, args) {
-                let post = {
-                    id: args.id,
+                let post = Post({
+                    //id: args.id,
                     comment: args.comment,
                     userId: args.userId,
-                }
-                return post;
+                })
+                return post.save();
             }
         }
     }
